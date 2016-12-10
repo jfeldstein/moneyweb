@@ -14,17 +14,83 @@
     stroke-width: 1.5px;
   }
 
+  svg {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-color: silver;
+  }
+
+  .callout {
+    position: absolute;
+    width: 25%;
+    max-width: 300px;
+    border: 1px solid black;
+    background-color: white;
+    top: 8px;
+    right: 8px;
+  }
+
+  .callout .content {
+    margin: 8px;
+  }
+
   </style>
 
 
 
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
 </head>
 <body>
-  <svg width="960" height="600"></svg>
+  <svg></svg>
 
+
+  <button
+    onclick="showCallout({name: 'George Washington', can_tell_lies: false});"
+    style="position: relative"
+    >
+    Show Callout
+  </button>
+
+  <button
+    onclick="hideCallout()"
+    style="position: relative ;"
+    >
+    Hide Callout
+  </button>
+
+  <div class="callout"></div>
+
+  <script id="calloutContent" type="text/template">
+    <div class="content">
+      <h1>{{= name.toTitleCase() }}</h1>
+      <dl>
+        {{ _.each(attributes, function(value, key) { }}
+          <dt>{{= key.toTitleCase() }}</dt>
+          <dd>{{= value }}</dd>
+        {{ }); }}
+      </dl>
+
+    </div>
+  </script>
+
+  <script src="utils.js"></script>
+  <script src="script.js"></script>
+  <script src="ui.js"></script>
+
+  <script>
+    hideCallout();
+  </script>
 </body>
 </html>
 
