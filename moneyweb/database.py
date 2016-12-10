@@ -2,11 +2,11 @@ import os
 from flask import Flask, render_template, request, redirect
 import pymongo
 from pymongo import MongoClient
+from config import MONGO_URL
 
 
-MONGO_URL = os.environ.get('MONGOHQ_URL')
 client = MongoClient(MONGO_URL)
 
 # Specify the database
-db = client.app29843323
-collection = db.shoutouts
+db = client.moneyweb
+graph_collection = db.graph
