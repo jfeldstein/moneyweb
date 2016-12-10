@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-from __builtin__ import False
+from __builtin__ import False, True
 from bs4.builder import HTML
+from Carbon.Aliases import true
 sys.path.append(os.path.abspath('../moneyweb'))
 #import moneyweb
 from database import db
@@ -29,7 +30,7 @@ def crawl_google_news(term):
             quotes = extract_quotes_from_parags(parags, term)
             
             for q in quotes:
-                vals = {"source": url, "person": term, "text": q}
+                vals = {"source": url, "person": term, "text": q, "type": "news"}
                 print vals
                 if comment_date:
                     vals['date'] = comment_date
@@ -56,7 +57,6 @@ def download_html(url, cache = True):
         rec = db.cached_html.find_one({"url": url})
         if rec:
             html = rec['html']
-            print "Got in cache "
             
     if not html:
         opener = urllib2.build_opener()
@@ -133,5 +133,46 @@ def is_english_text (str):
     
     return len(set(words) & STOPWORDS) > 2
 
+def parse_congressional_record(url):
+    html = download_html(url)
+    doc = BeautifulSoup(html, "lxml")
+
+    for pre in doc.body.findAll('pre'):
+        lines = pre.text.split('\n')
+        by_person = {}
+        current_remark = ""
+        current_name = None
+        
+        for l in lines:
+            if not re.search(r'[a-z]', l):
+                continue
+            
+            words = l.strip().split(' ')
+            
+            if len(words) > 1 and(words[0] in ['Mr.', 'Ms.', 'The']):
+                for i in [1,2]:
+                    if len(words[i])>2 and words[i][-1] == '.' and words[i][:-1].isupper():
+                        if current_remark and current_name:
+                            by_person[current_name] = (by_person.get(current_name) or []) + [current_remark]
+
+                        current_name = words[i][:-1].title()
+                        current_remark = ' '.join(words[i+1:])
+                        break
+            else:
+                current_remark += " "+ l
+            
+        if current_remark and current_name:
+            by_person[current_name] = (by_person.get(current_name) or []) + [current_remark]
+                
+                
+            
+    return by_person 
+                
 if __name__ == "__main__":    
-    crawl_google_news("Lindsay Graham")
+    #crawl_google_news("Lindsay Graham")
+    k = parse_congressional_record('https://www.congress.gov/congressional-record/2016/01/08/house-section/article/H181-2')
+    for kk in k:
+        print kk
+        for r in k[kk]:
+            print '\t' + r
+            
