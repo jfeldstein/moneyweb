@@ -232,7 +232,3 @@ def search_person_comments(name):
                 
 if __name__ == "__main__":
     search_person_comments("Nancy Pelosi")    
-    #crawl_google_news("Lindsay Graham")
-    #k = parse_congressional_record('https://www.congress.gov/congressional-record/2016/01/08/house-section/article/H181-2')
-    
-    search_congressional_record('Lamar Alexander')
