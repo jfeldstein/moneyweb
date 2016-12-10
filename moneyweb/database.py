@@ -1,16 +1,12 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 import os
+from flask import Flask, render_template, request, redirect
+import pymongo
+from pymongo import MongoClient
 
-uri = os.environ.get('DATABASE_URL', 'postgres://username:password@192.168.1.42/FLASK_ENTRY')
-engine = create_engine(uri, convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-					 autoflush=False,
-					 bind=engine))
-Base = declarative_base()
-Base.query = db_session.query_property()
 
-def init_db():
-  import Flasktest.models
-  Base.metadata.create_all(bind=engine)
+MONGO_URL = os.environ.get('MONGOHQ_URL')
+client = MongoClient(MONGO_URL)
+
+# Specify the database
+db = client.app29843323
+collection = db.shoutouts
