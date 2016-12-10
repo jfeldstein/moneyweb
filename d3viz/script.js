@@ -16,7 +16,7 @@ var simulation = d3.forceSimulation()
     .force("center", d3.forceCenter($(window).width() / 2, $(window).height() / 2));
 
 
-d3.json("http://localhost:8000/data_examples/lesmis.json", function(error, graph) {
+d3.json("http://localhost:8000/data_examples/kamala_harris.json", function(error, graph) {
   if (error) throw error;
 
 // build the arrow.
