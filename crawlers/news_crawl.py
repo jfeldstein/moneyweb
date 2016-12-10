@@ -57,12 +57,11 @@ def download_html(url, cache = True):
         if rec:
             html = rec['html']
             print "Got in cache "
-            print html
             
     if not html:
         opener = urllib2.build_opener()
         opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
-        html = opener.open(url).read().decode('utf-8')
+        html = opener.open(url).read()
         db.cached_html.insert_one({"url": url, "html": html})
     
     return html
@@ -135,4 +134,4 @@ def is_english_text (str):
     return len(set(words) & STOPWORDS) > 2
 
 if __name__ == "__main__":    
-    crawl_google_news("Nancy Pelosi")
+    crawl_google_news("Lindsay Graham")
