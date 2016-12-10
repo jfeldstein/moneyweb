@@ -183,12 +183,10 @@ def search_congressional_record(name):
             for r in remarks:
                 urlsplit = url.split('/')
                 d = datetime.datetime(int(urlsplit[4]), int(urlsplit[5]), int(urlsplit[6]), 0, 0)
-                vals = {"source": url, "person": name, "text": r, "type": "news", "date": d }
+                vals = {"source": url, "person": name, "text": r, "type": "congressional-record", "date": d }
                 db.comments.insert_one(vals)
         else:
-            #print "Not found " + last_name
-            #print parsed.keys()
-            pass  
+            print "Not found %s in %s" % (last_name, url)
             
             
 
