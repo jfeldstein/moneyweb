@@ -7,10 +7,17 @@ _.templateSettings = {
 var calloutTemplate = _.template($('#calloutContent').html());
 var $callout = $('.callout');
 
-var showCallout = function showCallout (attributes) {
+var showCallout = function showCallout (dirty) {
+  var attributes = _.clone(dirty);
+  delete attributes.index;
+  delete attributes.vx;
+  delete attributes.vy;
+  delete attributes.x;
+  delete attributes.y;
+
   $callout
     .html(calloutTemplate({
-      name: attributes.name,
+      id: attributes.id,
       attributes: attributes
     }))
     .show();
