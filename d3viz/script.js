@@ -9,7 +9,7 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-d3.json("miserables.json", function(error, graph) {
+d3.json("http://localhost:8000/data_examples/lesmis.json", function(error, graph) {
   if (error) throw error;
 
   var link = svg.append("g")
@@ -17,15 +17,16 @@ d3.json("miserables.json", function(error, graph) {
     .selectAll("line")
     .data(graph.links)
     .enter().append("line")
-      .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+      .attr("stroke-width", function(d) { return Math.sqrt(d.value*10); });
 
   var node = svg.append("g")
       .attr("class", "nodes")
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", 5)
       .attr("fill", function(d) { return color(d.group); })
+       .attr("r", function(d) { return d.group[0]; })
+
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
