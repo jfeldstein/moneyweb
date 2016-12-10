@@ -39,7 +39,7 @@ svg.append("svg:defs").selectAll("marker")
     .data(graph.links)
     .enter().append("line")
       .attr("stroke-width", function(d) { return Math.sqrt(d.value*10); })
-      .attr("marker-end", "url(#end)");
+   //   .attr("marker-end", "url(#end)");
 
   var node = svg.append("g")
       .attr("class", "nodes")
