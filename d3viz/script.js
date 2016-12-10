@@ -6,14 +6,14 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var manyBody = d3.forceManyBody()
     .strength(function(node) {
-    	// debugger;
     	return (node.group*2)*-10;
     })
+
 
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", manyBody)
-    .force("center", d3.forceCenter(width / 3, height / 2));
+    .force("center", d3.forceCenter($(window).width() / 2, $(window).height() / 2));
 
 
 d3.json("http://localhost:8000/data_examples/lesmis.json", function(error, graph) {
@@ -48,6 +48,8 @@ svg.append("svg:defs").selectAll("marker")
     .enter().append("circle")
       .attr("fill", function(d) { return color(d.group); })
        .attr("r", function(d) { return d.group[0]; })
+       .on('mouseover', showCallout)
+       .on('mouseout', hideCallout)
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
