@@ -6,14 +6,20 @@ _.templateSettings = {
 
 var calloutTemplate = _.template($('#calloutContent').html());
 var $callout = $('.callout');
+var defaultNode = null;
 
-var showCallout = function showCallout (dirty) {
+var cleanNode = function cleanNode (dirty) {
   var attributes = _.clone(dirty);
   delete attributes.index;
   delete attributes.vx;
   delete attributes.vy;
   delete attributes.x;
   delete attributes.y;
+  return attributes
+}
+
+var showCallout = function showCallout (dirty) {
+  var attributes = cleanNode(dirty);
 
   $callout
     .html(calloutTemplate({
@@ -21,8 +27,16 @@ var showCallout = function showCallout (dirty) {
       attributes: attributes
     }))
     .show();
+};
+
+var setDefaultCallout = function setDefaultCallout(dirty) {
+  defaultNode = cleanNode(dirty);
+  showCallout(dirty);
 }
 
 var hideCallout = function hideCallout () {
   $callout.hide();
+  if (defaultNode !== null) {
+    showCallout(defaultNode);
+  }
 }

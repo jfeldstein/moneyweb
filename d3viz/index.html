@@ -12,6 +12,7 @@
   .nodes circle {
     stroke: #fff;
     stroke-width: 1.5px;
+    cursor: pointer;
   }
 
   svg {
@@ -53,21 +54,6 @@
 </head>
 <body>
   <svg></svg>
-
-
-  <button
-    onclick="showCallout({name: 'George Washington', can_tell_lies: false});"
-    style="position: relative"
-    >
-    Show Callout
-  </button>
-
-  <button
-    onclick="hideCallout()"
-    style="position: relative ;"
-    >
-    Hide Callout
-  </button>
 
   <div class="callout"></div>
 
