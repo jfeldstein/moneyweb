@@ -19,6 +19,7 @@ var simulation = d3.forceSimulation()
     .force("charge", manyBody)
     .force("center", d3.forceCenter(svgEle.offsetWidth / 2 + 100, svgEle.offsetHeight + 200));
 
+var SIMULATE = true;
 d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error, graph) {
   if (error) throw error;
 
@@ -92,6 +93,7 @@ svg.append("svg:defs").selectAll("marker")
       .links(graph.links);
 
   function ticked() {
+    if (!SIMULATE) return;
     link
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
@@ -102,7 +104,14 @@ svg.append("svg:defs").selectAll("marker")
         .attr("transform", function(d) { return "translate("+d.x+", "+d.y+")"; })
         //.attr("y", function(d) { return d.y; });
   }
+
 });
+
+
+setTimeout(function () {
+  SIMULATE = false;
+}, 1700);
+
 
 function dragstarted(d) {
   if (!d3.event.active) simulation.alphaTarget(0.3).restart();
