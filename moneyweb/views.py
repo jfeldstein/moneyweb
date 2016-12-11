@@ -1,5 +1,5 @@
 from moneyweb import app
-from moneyweb.database import graph_collection
+from moneyweb.database import graph_collection, named_entities_collection
 from flask import (
     request, session, redirect,
     url_for, render_template, flash, jsonify
@@ -43,3 +43,9 @@ def graph_view():
         graph_collection.replace_one({}, update, upsert=True)
     graph = graph_collection.find_one({}, {'_id': 0})  # mongo object containing ObjectId
     return jsonify(graph)
+
+
+@app.route('/named_entities', methods=['GET'])
+def named_entities_view():
+    named_ents = named_entities_collection.find({}, {'_id': 0})
+    return jsonify(named_ents)
