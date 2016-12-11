@@ -16,25 +16,32 @@ import datetime
 
 STOPWORDS = set("a able about above across actually after afterwards again against ain all almost alone along already also although always am among amongst an and another any anybody anyhow anyone anything anyway anyways anywhere apart are aren around as aside at away b be because been before behind between beyond both but by c came can cannot cant co ca com come comes could couldn't couldn course currently d did didn didn't do does doesn doing don done down dr during e each edu eg eight either else et etc even ever every ex f far few for from g go goes going gone got gotten h had hadn hadn't has hasn hasn't have haven having he hello help hence her here hers herself hi him himself his hither how howbeit however i ie if in inc inner insofar instead into inward is isn it its itself j jr just k keep keeps kept know known knows l last lately later latter latterly least less lest let like liked likely little ll ltd m mainly many may maybe me mean meanwhile merely might mon more moreover most mostly mr mrs ms much must my myself n name namely nd near nearly need needs neither never nevertheless new next nine no nobody non none noone nor not nothing novel now nowhere o obviously of off often oh ok okay old on once one ones only onto or other others otherwise ought our ours ourselves out outside over overall own p particular particularly per perhaps placed please plus pm possible presumably probably provides q que quite qv r rather rd re really right s said same saw say saying says second secondly see seeing seem seemed seeming seems seen self selves sent shall she should shouldn shouldn't since six so some somewhat soon sorry still sub such sup sure t take taken tell tends th than thank thanks thanx that thats that's that'd the their theirs them themselves then thence there thereafter thereby therefore therein theres thereupon these they think this those though three through throughout thru thus to together too took toward towards tried tries truly try trying twice two u un under unless until unto up upon us use used useful uses using usually uucp v value various ve very via viz vs w want wants was wasn wasn't way we  well went were weren what whatever when whence whenever where whereafter whereas whereby wherein whereupon wherever whether which while whither who whoever whole whom whose why will wish with within without won wonder would wouldn wouldn't x y yes yet you your yours yourself yourselves z zero".split())
 
-def crawl_google_news(term):
-    qterm = quote_plus(term)  
+def crawl_google_news(name):
+    qterm = quote_plus(name)  
     url = "https://news.google.com/news?cf=all&hl=en&pz=1&ned=us&output=rss&q=%s" % qterm
     
     content = download_html(url, cache=False)
     parsed = parse_google_news_xml(content)
     
-    q = r"\b(%s)\b" % term.replace(' ', '|')
+    q = r"\b(%s)\b" % name.replace(' ', '|')
     term_re = re.compile(q, re.IGNORECASE)
+ 
+    
+    
     for url in parsed:
         try:
             parags, comment_date = extract_parags_from_url(url)
-            quotes = extract_quotes_from_parags(parags, term)
+            quotes = extract_quotes_from_parags(parags, name)
             
             for q in quotes:
-                vals = {"source": url, "person": term, "text": q, "type": "news"}
+                vals = {"source": url, "person": name, "text": q, "type": "news"}
                 if comment_date:
                     vals['date'] = comment_date
                 db.comments.insert_one(vals)
+                
+            
+            clean_text = '\n'.join( parags )
+            record_named_entities(clean_text, name, url)
         except:
             pass
 
@@ -150,7 +157,7 @@ def search_congressional_record(name):
     if not person_search_link:
         return
     
-    print "Person search link "+person_search_link
+    print ("Person search link "+person_search_link)
     
     all_urls = set([])
     article_urls = set([])     
@@ -178,13 +185,17 @@ def search_congressional_record(name):
         parsed = parse_congressional_record(url)
         remarks = parsed.get(last_name)
         if remarks:
-            for r in remarks:
+            for text in remarks:
                 urlsplit = url.split('/')
                 d = datetime.datetime(int(urlsplit[4]), int(urlsplit[5]), int(urlsplit[6]), 0, 0)
-                vals = {"source": url, "person": name, "text": r, "type": "congressional-record", "date": d }
+                vals = {"source": url, "person": name, "text": text, "type": "congressional-record", "date": d }
                 db.comments.insert_one(vals)
+            
+            record_named_entities('\n'.join(remarks), name, url)
+
         else:
-            print "Not found %s in %s" % (last_name, url)
+            #print ("Not found %s in %s" % (last_name, url))
+            pass
             
             
 
@@ -224,9 +235,49 @@ def parse_congressional_record(url):
             
     return by_person 
 
+def read_list(fname):
+    with open(fname) as f:
+        content = f.readlines()
+        return map(lambda q: q.strip(), content)
+
+WORDS = set(read_list('./words.txt'))
+
+def extract_named_entities(text, person):
+    from nltk import ne_chunk, pos_tag, word_tokenize
+    from nltk.tree import Tree
+    
+    last_name = person.split(' ')[-1]
+    
+    def get_continuous_chunks(text):
+        chunked = ne_chunk(pos_tag(word_tokenize(text)))
+        prev = None
+        chunks = []
+        for i in chunked:
+            if type(i) == Tree:
+                chunks.append(" ".join([token for token, pos in i.leaves()]))
+        return chunks
+    
+    chunks = filter(lambda w: w.lower() not in WORDS and w.split(' ')[-1] != last_name, get_continuous_chunks(text))
+    
+    tally = {}
+    for c in chunks:
+        tally[c] = (tally.get(c) or 0) + 1
+    
+    return tally
+
+def record_named_entities(text, person, url):
+    db.named_entities.delete_many({"url": url})
+    tally = extract_named_entities(text, person)
+    for ne in tally:
+        db.named_entities.insert_one({"url": url, "entity": ne, "count": tally[ne]})
+
+    
+
 def search_person_comments(name):
     crawl_google_news(name)
     search_congressional_record(name)
                 
 if __name__ == "__main__":
-    search_person_comments("Nancy Pelosi")    
+    search_person_comments("Nancy Pelosi")        
+    #crawl_google_news("Nancy Pelosi")
+    
