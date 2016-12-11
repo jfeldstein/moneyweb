@@ -16,6 +16,7 @@ import datetime
 
 STOPWORDS = set("a able about above across actually after afterwards again against ain all almost alone along already also although always am among amongst an and another any anybody anyhow anyone anything anyway anyways anywhere apart are aren around as aside at away b be because been before behind between beyond both but by c came can cannot cant co ca com come comes could couldn't couldn course currently d did didn didn't do does doesn doing don done down dr during e each edu eg eight either else et etc even ever every ex f far few for from g go goes going gone got gotten h had hadn hadn't has hasn hasn't have haven having he hello help hence her here hers herself hi him himself his hither how howbeit however i ie if in inc inner insofar instead into inward is isn it its itself j jr just k keep keeps kept know known knows l last lately later latter latterly least less lest let like liked likely little ll ltd m mainly many may maybe me mean meanwhile merely might mon more moreover most mostly mr mrs ms much must my myself n name namely nd near nearly need needs neither never nevertheless new next nine no nobody non none noone nor not nothing novel now nowhere o obviously of off often oh ok okay old on once one ones only onto or other others otherwise ought our ours ourselves out outside over overall own p particular particularly per perhaps placed please plus pm possible presumably probably provides q que quite qv r rather rd re really right s said same saw say saying says second secondly see seeing seem seemed seeming seems seen self selves sent shall she should shouldn shouldn't since six so some somewhat soon sorry still sub such sup sure t take taken tell tends th than thank thanks thanx that thats that's that'd the their theirs them themselves then thence there thereafter thereby therefore therein theres thereupon these they think this those though three through throughout thru thus to together too took toward towards tried tries truly try trying twice two u un under unless until unto up upon us use used useful uses using usually uucp v value various ve very via viz vs w want wants was wasn wasn't way we  well went were weren what whatever when whence whenever where whereafter whereas whereby wherein whereupon wherever whether which while whither who whoever whole whom whose why will wish with within without won wonder would wouldn wouldn't x y yes yet you your yours yourself yourselves z zero".split())
 
+# Search Google news about this person, download each stories, extract quotes and find named entities
 def crawl_google_news(name):
     qterm = quote_plus(name)  
     url = "https://news.google.com/news?cf=all&hl=en&pz=1&ned=us&output=rss&q=%s" % qterm
@@ -46,6 +47,7 @@ def crawl_google_news(name):
             pass
 
 
+# Parse the Google News API
 def parse_google_news_xml(str):
     import xml.etree.ElementTree as ET
     from urlparse import urlsplit, urlparse, parse_qsl
@@ -58,6 +60,7 @@ def parse_google_news_xml(str):
         results.append(url)
     return results
 
+# Download a given URL, with optional caching
 def download_html(url, cache = True):
     html = None
     if cache:
@@ -72,7 +75,8 @@ def download_html(url, cache = True):
         db.cached_html.insert_one({"url": url, "html": html})
     
     return html
-    
+
+# Extract pagragraphs from the news story, also attempt to determine the date    
 def extract_parags_from_url(url, cache = True):
     import urllib2
     
@@ -95,7 +99,7 @@ def extract_parags_from_url(url, cache = True):
     return parags, comment_date
 
 
-
+# Extract quotes from pagraghs, e.g. 'I said "good day"' -> "good day"
 def extract_quotes_from_parags(parags, term):
     q = r"\b(%s)\b" % term.replace(' ', '|')
     term_re = re.compile(q, re.IGNORECASE)
@@ -139,6 +143,7 @@ def is_english_text (str):
     
     return len(set(words) & STOPWORDS) > 2
 
+# Use congress.gov to recursively traverse to articles (minutes) relevant to the person
 def search_congressional_record(name):
     name_split = name.upper().split(' ')
     last_name = name_split[-1]
@@ -157,8 +162,6 @@ def search_congressional_record(name):
     if not person_search_link:
         return
     
-    print ("Person search link "+person_search_link)
-    
     all_urls = set([])
     article_urls = set([])     
     
@@ -171,7 +174,7 @@ def search_congressional_record(name):
                 all_urls.add('https://www.congress.gov'+link['href'])
        
        
-    
+    # Parse intermediate pages (tables of content)
     for url in all_urls:
         doc = BeautifulSoup(download_html(url), "lxml")
         table = doc.find('table', attrs={'class':'item_table'})
@@ -180,7 +183,8 @@ def search_congressional_record(name):
                 if link['href'].startswith('/congressional-record/') and '/article/' in link['href'] and not link['href'].endswith('.pdf'):
                     #print "ARTICLE "+link['href']
                     article_urls.add('https://www.congress.gov'+link['href'])
-                
+    
+    # Parse articles
     for url in article_urls:
         parsed = parse_congressional_record(url)
         remarks = parsed.get(last_name)
@@ -198,7 +202,7 @@ def search_congressional_record(name):
             pass
             
             
-
+# Parse an article of a congressional record, e.g. https://www.congress.gov/congressional-record/2016/07/07/senate-section/article/S4841-2
 def parse_congressional_record(url):
     html = download_html(url)
     doc = BeautifulSoup(html, "lxml")
@@ -235,6 +239,7 @@ def parse_congressional_record(url):
             
     return by_person 
 
+# Read a list of words from file
 def read_list(fname):
     with open(fname) as f:
         content = f.readlines()
@@ -242,22 +247,19 @@ def read_list(fname):
 
 WORDS = set(read_list('./words.txt'))
 
+# Extract named entities from a text
 def extract_named_entities(text, person):
     from nltk import ne_chunk, pos_tag, word_tokenize
     from nltk.tree import Tree
     
     last_name = person.split(' ')[-1]
     
-    def get_continuous_chunks(text):
-        chunked = ne_chunk(pos_tag(word_tokenize(text)))
-        prev = None
-        chunks = []
-        for i in chunked:
-            if type(i) == Tree:
+    chunks = []
+    for i in ne_chunk(pos_tag(word_tokenize(text))):
+        if type(i) == Tree:
                 chunks.append(" ".join([token for token, pos in i.leaves()]))
-        return chunks
     
-    chunks = filter(lambda w: w.lower() not in WORDS and w.split(' ')[-1] != last_name, get_continuous_chunks(text))
+    chunks = filter(lambda w: w.lower() not in WORDS and w.split(' ')[-1] != last_name, chunks)
     
     tally = {}
     for c in chunks:
@@ -265,6 +267,7 @@ def extract_named_entities(text, person):
     
     return tally
 
+# Record named entities to the DB
 def record_named_entities(text, person, url):
     db.named_entities.delete_many({"url": url})
     tally = extract_named_entities(text, person)
@@ -272,7 +275,9 @@ def record_named_entities(text, person, url):
         db.named_entities.insert_one({"url": url, "entity": ne, "count": tally[ne]})
 
     
-
+# This is the main function that should be called to search
+#    1) news (via Google News)
+#    2) Congressional records
 def search_person_comments(name):
     crawl_google_news(name)
     search_congressional_record(name)
