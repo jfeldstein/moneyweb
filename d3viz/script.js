@@ -9,6 +9,7 @@ var manyBody = d3.forceManyBody()
     	return (node.group+10)*-14;
     })
 
+var svgEle = document.getElementsByTagName('svg')[0].parentNode;
 var idToClass = function(id) {
   return id.replace(/[^A-Z]+/ig, '-');
 }
@@ -16,7 +17,7 @@ var idToClass = function(id) {
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", manyBody)
-    .force("center", d3.forceCenter(1000, 1300));
+    .force("center", d3.forceCenter(svgEle.offsetWidth / 2 + 100, svgEle.offsetHeight + 200));
 
 d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error, graph) {
   if (error) throw error;
