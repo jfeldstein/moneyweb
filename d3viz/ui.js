@@ -38,9 +38,16 @@ var toggleNodesAround = function toggleNodesAround(node) {
   var $node = $('.circle.'+idToClass(node.id));
   var centerClass = $node.attr('class').replace(/ ?circle ?/, '');
   var $lines = $('.line.source-'+centerClass);
+  var isCenterHuman = false;
 
   if ($lines.length === 0) {
-    return;
+    $lines = $('.line.target-'+centerClass);
+
+    if ($lines.length === 0) {
+      return;
+    }
+
+    isCenterHuman = true;
   }
 
   var otherClasses = Array.from($lines.map(function(i, l) { return Array.from(l.classList); }));
@@ -49,6 +56,18 @@ var toggleNodesAround = function toggleNodesAround(node) {
   var linesAndNodes = _.groupBy(otherClasses, function(cls) {
     return cls.indexOf('source') !== -1 ? 'lines' : 'circles';
   });
+
+  if (isCenterHuman) {
+    var destCircles = linesAndNodes['lines'];
+
+    destCircles = destCircles.map(function(circle){
+      return circle.replace('source-', '');
+    })
+
+    linesAndNodes['circles'] = destCircles;
+    linesAndNodes['circles'].push(centerClass);
+    linesAndNodes['lines'] = ['target-'+centerClass]
+  }
 
   var circlesToKeep = linesAndNodes['circles'].map(function(circle) {return '.'+circle.replace('target-', ''); });
   circlesToKeep.push('.'+centerClass);
