@@ -39,7 +39,10 @@ svg.append("svg:defs").selectAll("marker")
     .data(graph.links)
     .enter().append("line")
       .attr("stroke-width", function(d) { return Math.sqrt(d.value/1000); })
-      .attr("marker-end", "url(#end)");
+      .attr("marker-end", "url(#end)")
+      .on('mouseover', showCallout)
+      .on('mouseout', hideCallout)
+      .on('mousedown', setDefaultCallout);
 
   var circles = svg
     .append("g")
