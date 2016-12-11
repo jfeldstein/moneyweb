@@ -55,7 +55,7 @@ svg.append("svg:defs").selectAll("marker")
   circleGroups
       .insert("circle")
         .attr("fill", function(d) { return color(d.group+10); })
-        .attr("r", function(d) { return d.group[0]+10; })
+        .attr("r", function(d) { return (d.group[0]||0)+10; })
         .on('mouseover', showCallout)
         .on('mouseout', hideCallout)
         .on('mousedown', setDefaultCallout)
