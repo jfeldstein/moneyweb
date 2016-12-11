@@ -64,9 +64,9 @@ svg.append("svg:defs").selectAll("marker")
             .on("drag", dragged)
             .on("end", dragended));
 
-  // circleGroups
-  //     .insert("text")
-  //       .text(function (d) { return d.id; });
+  circleGroups
+      .insert("text")
+        .text(function (d) { return d.id; });
 
   circleGroups
       .insert("title")
