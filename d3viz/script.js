@@ -6,7 +6,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var manyBody = d3.forceManyBody()
     .strength(function(node) {
-    	return (node.group+1)*-10;
+    	return (node.group+10)*-10;
     })
 
 
@@ -16,7 +16,7 @@ var simulation = d3.forceSimulation()
     .force("center", d3.forceCenter($(window).width() / 2, $(window).height() / 2));
 
 
-d3.json("http://localhost:8000/data_examples/kamala_harris.json", function(error, graph) {
+d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error, graph) {
   if (error) throw error;
 
 // build the arrow.
