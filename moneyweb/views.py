@@ -2,7 +2,8 @@ from moneyweb import app
 from moneyweb.database import graph_collection, named_entities_collection
 from flask import (
     request, session, redirect,
-    url_for, render_template, flash, jsonify
+    url_for, render_template, flash, jsonify,
+    send_from_directory,
 )
 from bson import json_util
 
@@ -50,3 +51,8 @@ def named_entities_view():
     named_ents = named_entities_collection.find({}, {'_id': 0})
     ents = [n for n in named_ents]
     return jsonify(ents)
+
+
+@app.route('/font/<path:path>', methods=['GET'])
+def font_view():
+    return send_from_directory('font', filename=path)
