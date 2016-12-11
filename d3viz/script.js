@@ -6,7 +6,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var manyBody = d3.forceManyBody()
     .strength(function(node) {
-    	return (node.group*2)*-10;
+    	return (node.group+1)*-10;
     })
 
 
@@ -38,26 +38,42 @@ svg.append("svg:defs").selectAll("marker")
     .selectAll("line")
     .data(graph.links)
     .enter().append("line")
-      .attr("stroke-width", function(d) { return Math.sqrt(d.value*10); })
-   //   .attr("marker-end", "url(#end)");
+      .attr("stroke-width", function(d) { return Math.sqrt(d.value/1000); })
+      .attr("marker-end", "url(#end)")
+      .on('mouseover', showCallout)
+      .on('mouseout', hideCallout)
+      .on('mousedown', setDefaultCallout);
 
-  var node = svg.append("g")
+  var circles = svg
+    .append("g")
       .attr("class", "nodes")
-    .selectAll("circle")
-    .data(graph.nodes)
-    .enter().append("circle")
-      .attr("fill", function(d) { return color(d.group); })
-       .attr("r", function(d) { return d.group[0]; })
-       .on('mouseover', showCallout)
-       .on('mouseout', hideCallout)
-       .on('mousedown', setDefaultCallout)
-      .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended));
+    .selectAll('.nodes');
 
-  node.append("title")
-      .text(function(d) { return d.id; });
+  var circleGroups = circles
+    .data(graph.nodes)
+    .enter()
+    .append('g')
+      .attr('class', 'circle');
+
+  circleGroups
+      .insert("circle")
+        .attr("fill", function(d) { return color(d.group+10); })
+        .attr("r", function(d) { return (d.group[0]||0)+10; })
+        .on('mouseover', showCallout)
+        .on('mouseout', hideCallout)
+        .on('mousedown', setDefaultCallout)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+  circleGroups
+      .insert("text")
+        .text(function (d) { return d.id; });
+
+  circleGroups
+      .insert("title")
+        .text(function(d) { return d.id; });
 
   simulation
       .nodes(graph.nodes)
@@ -73,9 +89,9 @@ svg.append("svg:defs").selectAll("marker")
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+    circleGroups
+        .attr("transform", function(d) { return "translate("+d.x+", "+d.y+")"; })
+        //.attr("y", function(d) { return d.y; });
   }
 });
 
