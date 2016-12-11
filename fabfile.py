@@ -2,4 +2,4 @@ from fabric.operations import *
 
 
 def serve():
-    local('python runserver.py')
+    local('python -m SimpleHTTPServer')
