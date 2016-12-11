@@ -49,4 +49,4 @@ def graph_view():
 def named_entities_view():
     named_ents = named_entities_collection.find({}, {'_id': 0})
     ents = [n for n in named_ents]
-    return jsonify(named_ents)
+    return jsonify(ents)
