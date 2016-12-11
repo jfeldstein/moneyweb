@@ -6,7 +6,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var manyBody = d3.forceManyBody()
     .strength(function(node) {
-    	return (node.group*2)*-10;
+    	return (node.group+1)*-10;
     })
 
 
@@ -38,8 +38,8 @@ svg.append("svg:defs").selectAll("marker")
     .selectAll("line")
     .data(graph.links)
     .enter().append("line")
-      .attr("stroke-width", function(d) { return Math.sqrt(d.value*10); })
-   //   .attr("marker-end", "url(#end)");
+      .attr("stroke-width", function(d) { return Math.sqrt(d.value/1000); })
+      .attr("marker-end", "url(#end)");
 
   var circles = svg
     .append("g")
@@ -54,8 +54,8 @@ svg.append("svg:defs").selectAll("marker")
 
   circleGroups
       .insert("circle")
-        .attr("fill", function(d) { return color(d.group); })
-        .attr("r", function(d) { return d.group[0]; })
+        .attr("fill", function(d) { return color(d.group+10); })
+        .attr("r", function(d) { return d.group[0]+10; })
         .on('mouseover', showCallout)
         .on('mouseout', hideCallout)
         .on('mousedown', setDefaultCallout)
@@ -64,9 +64,9 @@ svg.append("svg:defs").selectAll("marker")
             .on("drag", dragged)
             .on("end", dragended));
 
-  circleGroups
-      .insert("text")
-        .text(function (d) { return d.id; });
+  // circleGroups
+  //     .insert("text")
+  //       .text(function (d) { return d.id; });
 
   circleGroups
       .insert("title")
