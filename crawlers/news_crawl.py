@@ -163,8 +163,6 @@ def search_congressional_record(name):
             else:
                 all_urls.add('https://www.congress.gov'+link['href'])
        
-    print "Found %d 2nd-tier links " % len(all_urls)
-    print all_urls
        
     
     for url in all_urls:
