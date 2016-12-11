@@ -6,7 +6,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var manyBody = d3.forceManyBody()
     .strength(function(node) {
-    	return (node.group+10)*-10;
+    	return (node.group+10)*-14;
     })
 
 var idToClass = function(id) {
@@ -16,7 +16,7 @@ var idToClass = function(id) {
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", manyBody)
-    .force("center", d3.forceCenter(1000, 1000));
+    .force("center", d3.forceCenter(1000, 1300));
 
 d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error, graph) {
   if (error) throw error;
@@ -44,7 +44,7 @@ svg.append("svg:defs").selectAll("marker")
     .selectAll("line")
     .data(graph.links)
     .enter().append("line")
-      .attr("stroke-width", function(d) { return Math.sqrt(d.value/1000); })
+      .attr("stroke-width", function(d) { return Math.max(1, Math.sqrt(d.value) / 100); })
       .attr("marker-end", "url(#end)")
       .attr("class", function(d) {
         return ['line', 'source-'+idToClass(d.source), 'target-'+idToClass(d.target)].join(' ');
@@ -66,7 +66,7 @@ svg.append("svg:defs").selectAll("marker")
   circleGroups
       .insert("circle")
         .attr("fill", function(d) { return color(d.group+10); })
-        .attr("r", function(d) { return (d.group[0]||0)+10; })
+        .attr("r", function(d) { return isNaN(d.value) ? 10 : Math.sqrt(d.value); })
         .on('mouseover', showCallout)
         .on('mouseout', hideCallout)
         .on('mousedown', setFocus)
