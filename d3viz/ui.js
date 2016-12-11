@@ -32,10 +32,40 @@ var showCallout = instantShowCallout = function showCallout (dirty) {
 showCallout = _.debounce(showCallout, 300);
 
 
+var toggleNodesAround = function toggleNodesAround(node) {
+  var $node = $('.circle.'+idToClass(node.id));
+  var centerClass = $node.attr('class').replace(/ ?circle ?/, '');
+  var $lines = $('.line.source-'+centerClass);
+
+  if ($lines.length === 0) {
+    return;
+  }
+
+  var otherClasses = Array.from($lines.map(function(i, l) { return Array.from(l.classList); }));
+  otherClasses = _.uniqBy(otherClasses)
+  otherClasses = _.without(otherClasses, 'line', 'circle');
+  var linesAndNodes = _.groupBy(otherClasses, function(cls) {
+    return cls.indexOf('source') !== -1 ? 'lines' : 'circles';
+  });
+
+  var circlesToKeep = linesAndNodes['circles'].map(function(circle) {return '.'+circle.replace('target-', ''); });
+  circlesToKeep.push('.'+centerClass);
+  circlesToKeep = circlesToKeep.join(', ');
+
+  var linesToKeep = linesAndNodes['lines'].map(function(line) {return '.'+line; }).join(', ');
+  var selector = ['.circle:not(',circlesToKeep,'), .line:not(',linesToKeep,')'].join(' ');
+  console.log(selector);
+  $(selector).hide();
+}
+
+var clearFocus = function clearFocus() {
+  $('.circle, .line').show();
+};
+
 var setFocus = function setFocus(dirty) {
   defaultNode = cleanNode(dirty);
   instantShowCallout(dirty);
-//  toggleNodesAround(dirty);
+  toggleNodesAround(dirty);
 }
 
 

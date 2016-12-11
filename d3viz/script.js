@@ -23,6 +23,8 @@ d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error,
 
   window.graph = graph;
 
+  svg.on('mousedown', clearFocus);
+
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
     .data(["end"])      // Different link/path types can be defined here
@@ -45,7 +47,7 @@ svg.append("svg:defs").selectAll("marker")
       .attr("stroke-width", function(d) { return Math.sqrt(d.value/1000); })
       .attr("marker-end", "url(#end)")
       .attr("class", function(d) {
-        return ['line', idToClass(d.source), idToClass(d.target)].join(' ');
+        return ['line', 'source-'+idToClass(d.source), 'target-'+idToClass(d.target)].join(' ');
       })
 
   var circles = svg
