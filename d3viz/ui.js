@@ -18,7 +18,7 @@ var cleanNode = function cleanNode (dirty) {
   return attributes
 }
 
-var showCallout = function showCallout (dirty) {
+var showCallout = instantShowCallout = function showCallout (dirty) {
   var attributes = cleanNode(dirty);
 
   $callout
@@ -29,10 +29,13 @@ var showCallout = function showCallout (dirty) {
     .show();
 };
 
+showCallout = _.debounce(showCallout, 300);
+
 var setDefaultCallout = function setDefaultCallout(dirty) {
   defaultNode = cleanNode(dirty);
-  showCallout(dirty);
+  instantShowCallout(dirty);
 }
+
 
 var hideCallout = function hideCallout () {
   $callout.hide();
