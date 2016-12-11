@@ -9,15 +9,19 @@ var manyBody = d3.forceManyBody()
     	return (node.group+10)*-10;
     })
 
+var idToClass = function(id) {
+  return id.replace(/[^A-Z]+/ig, '-');
+}
 
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", manyBody)
     .force("center", d3.forceCenter(1000, 1000));
 
-
 d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error, graph) {
   if (error) throw error;
+
+  window.graph = graph;
 
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
@@ -40,9 +44,9 @@ svg.append("svg:defs").selectAll("marker")
     .enter().append("line")
       .attr("stroke-width", function(d) { return Math.sqrt(d.value/1000); })
       .attr("marker-end", "url(#end)")
-      .on('mouseover', showCallout)
-      .on('mouseout', hideCallout)
-      .on('mousedown', setDefaultCallout);
+      .attr("class", function(d) {
+        return ['line', idToClass(d.source), idToClass(d.target)].join(' ');
+      })
 
   var circles = svg
     .append("g")
@@ -53,7 +57,9 @@ svg.append("svg:defs").selectAll("marker")
     .data(graph.nodes)
     .enter()
     .append('g')
-      .attr('class', 'circle');
+      .attr('class', function(d) {
+        return ['circle', idToClass(d.id)].join(' ');
+      });
 
   circleGroups
       .insert("circle")
@@ -61,7 +67,7 @@ svg.append("svg:defs").selectAll("marker")
         .attr("r", function(d) { return (d.group[0]||0)+10; })
         .on('mouseover', showCallout)
         .on('mouseout', hideCallout)
-        .on('mousedown', setDefaultCallout)
+        .on('mousedown', setFocus)
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)

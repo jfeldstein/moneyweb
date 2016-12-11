@@ -31,9 +31,11 @@ var showCallout = instantShowCallout = function showCallout (dirty) {
 
 showCallout = _.debounce(showCallout, 300);
 
-var setDefaultCallout = function setDefaultCallout(dirty) {
+
+var setFocus = function setFocus(dirty) {
   defaultNode = cleanNode(dirty);
   instantShowCallout(dirty);
+//  toggleNodesAround(dirty);
 }
 
 
