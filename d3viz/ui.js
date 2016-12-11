@@ -29,6 +29,8 @@ var showCallout = function showCallout (dirty) {
     .show();
 };
 
+showCallout = _.debounce(showCallout, 300);
+
 var setDefaultCallout = function setDefaultCallout(dirty) {
   defaultNode = cleanNode(dirty);
   showCallout(dirty);
