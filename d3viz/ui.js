@@ -15,6 +15,8 @@ var cleanNode = function cleanNode (dirty) {
   delete attributes.vy;
   delete attributes.x;
   delete attributes.y;
+  delete attributes.group;
+  delete attributes.fx;
   return attributes
 }
 
@@ -54,7 +56,7 @@ var toggleNodesAround = function toggleNodesAround(node) {
 
   var linesToKeep = linesAndNodes['lines'].map(function(line) {return '.'+line; }).join(', ');
   var selector = ['.circle:not(',circlesToKeep,'), .line:not(',linesToKeep,')'].join(' ');
-  console.log(selector);
+
   $(selector).hide();
 }
 

@@ -93,7 +93,7 @@
       <h1>{{= id.toTitleCase() }}</h1>
       <dl>
         {{ _.each(attributes, function(value, key) { }}
-          <dt>{{= key.toTitleCase() }}</dt>
+          <dt>{{= key === 'id' ? 'Name' : key.toTitleCase() }}</dt>
           <dd>{{= value }}</dd>
         {{ }); }}
       </dl>
