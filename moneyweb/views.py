@@ -54,5 +54,5 @@ def named_entities_view():
 
 
 @app.route('/font/<path:path>', methods=['GET'])
-def font_view():
+def font_view(path):
     return send_from_directory('font', filename=path)
