@@ -13,7 +13,7 @@ var manyBody = d3.forceManyBody()
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", manyBody)
-    .force("center", d3.forceCenter($(window).width() / 2, $(window).height() / 2));
+    .force("center", d3.forceCenter(1000, 1000));
 
 
 d3.json("http://localhost:8000/data_examples/floridafinal.json", function(error, graph) {

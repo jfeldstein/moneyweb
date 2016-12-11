@@ -3,7 +3,16 @@
 <head>
   <meta charset="utf-8">
   <style>
-
+    html{
+      height:100%;
+    }
+    body{
+      height:100%;
+      margin:0;
+    }
+    .page {
+      height:100%;
+    }
   .links line {
     stroke: #999;
     stroke-opacity: 0.6;
@@ -60,9 +69,6 @@
   }
 
   </style>
-
-
-
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
   <script src="https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js"></script>
@@ -72,7 +78,9 @@
     crossorigin="anonymous"></script>
 </head>
 <body>
+<div class="page">
   <svg></svg>
+</div>
 
   <div class="callout"></div>
 
